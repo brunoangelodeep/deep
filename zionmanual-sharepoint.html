@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZION WMS - Manual de Operação Integrado</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Cores atualizadas para a identidade visual da DEEP Logística */
+            --primary-color: #176f62; /* Verde/Teal Escuro para base e textos principais */
+            --secondary-color: #24a793; /* Verde/Ciano vibrante para destaques e botões */
+            
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --border-color: #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* ----- SIDEBAR ----- */
+        .sidebar { width: 280px; background-color: var(--primary-color); color: white; display: flex; flex-direction: column; transition: all 0.3s ease; }
+        .sidebar-header { padding: 24px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header i { font-size: 24px; color: var(--secondary-color); }
+        .sidebar-header h2 { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
+        .nav-menu { list-style: none; padding: 20px 0; flex-grow: 1; overflow-y: auto; }
+        .nav-item { padding: 12px 24px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.2s; font-weight: 500; opacity: 0.8; font-size: 14px;}
+        .nav-item:hover { background-color: rgba(255,255,255,0.05); opacity: 1; }
+        .nav-item.active { background-color: var(--secondary-color); opacity: 1; border-left: 4px solid white; }
+        .nav-item i { width: 20px; text-align: center; }
+        .menu-title { padding: 15px 24px 5px; font-size: 11px; text-transform: uppercase; color: #a7f3d0; font-weight: 700; margin-top: 5px;}
+
+        /* ----- MAIN CONTENT ----- */
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 30px 40px; display: flex; flex-direction: column; scroll-behavior: smooth;}
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 2px solid var(--border-color); }
+        .top-header h1 { font-size: 28px; color: var(--primary-color); }
+        .sys-status { background-color: #ccfbf1; color: #0f766e; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+
+        /* ----- SECTIONS (TABS) ----- */
+        .section-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .section-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ----- CARDS & STEPS ----- */
+        .card { background-color: var(--card-bg); border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); padding: 25px; margin-bottom: 20px; border-top: 4px solid var(--secondary-color); }
+        .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .card-header h3 { font-size: 18px; color: var(--primary-color); font-weight: 700;}
+        
+        .step-container { display: flex; margin-bottom: 20px; position: relative; }
+        .step-number { min-width: 40px; height: 40px; background-color: var(--secondary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; margin-right: 20px; z-index: 2; flex-shrink: 0;}
+        .step-content { background-color: #f8fafc; padding: 15px 20px; border-radius: 8px; flex-grow: 1; border: 1px solid var(--border-color); }
+        .step-content p { line-height: 1.6; margin-bottom: 10px; font-size: 14px; color: #374151;}
+        .step-content p:last-child { margin-bottom: 0; }
+
+        .highlight { font-weight: 700; color: var(--primary-color); background-color: #ccfbf1; padding: 2px 6px; border-radius: 4px; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-right: 5px; }
+        .badge-system { background-color: #ede9fe; color: #4338ca; }
+        .badge-collector { background-color: #fef3c7; color: #b45309; }
+
+        /* ----- INFO BOXES ----- */
+        .info-box { background-color: #fffbeb; border-left: 4px solid var(--warning-color); padding: 15px; margin-bottom: 20px; border-radius: 0 8px 8px 0; font-size: 14px;}
+        
+        /* ----- ACCORDION (Sanfonas) ----- */
+        .accordion { background-color: #f8fafc; cursor: pointer; padding: 15px; width: 100%; border: 1px solid var(--border-color); border-bottom: none; text-align: left; outline: none; font-size: 15px; font-weight: 600; color: var(--text-main); transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
+        .accordion:first-of-type { border-radius: 8px 8px 0 0; }
+        .accordion:last-of-type { border-bottom: 1px solid var(--border-color); border-radius: 0 0 8px 8px; }
+        .accordion.active-acc { background-color: #f0fdfa; color: var(--secondary-color); border-bottom: 1px solid var(--border-color); }
+        .accordion:hover { background-color: #f1f5f9; }
+        .panel { padding: 0 18px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); }
+        .panel-content { padding: 20px 0; font-size: 14px; line-height: 1.6; color: #4b5563; }
+        .panel-content h4 { color: var(--primary-color); margin-top: 15px; margin-bottom: 8px; font-size: 15px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;}
+        .panel-content h4:first-child { margin-top: 0; }
+        .panel-content ul { padding-left: 20px; margin-bottom: 15px;}
+        .panel-content li { margin-bottom: 5px;}
+
+        /* ----- TABELAS BÁSICAS ----- */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px;}
+        .data-table th, .data-table td { border: 1px solid var(--border-color); padding: 12px; }
+        .data-table th { background-color: #f1f5f9; text-align: left; color: var(--primary-color);}
+
+        /* ----- FOOTER ----- */
+        .main-footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 20px 0 0 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <h2>ZION WMS</h2>
+        </div>
+        <ul class="nav-menu">
+            <div class="menu-title">Fluxos Operacionais</div>
+            <li class="nav-item active" onclick="switchTab('inbound', this)"><i class="fa-solid fa-arrow-right-to-bracket"></i> Fluxo de Entrada</li>
+            <li class="nav-item" onclick="switchTab('outbound', this)"><i class="fa-solid fa-truck-ramp-box"></i> Unitização e Saída</li>
+            
+            <div class="menu-title">Manuais de Apoio</div>
+            <li class="nav-item" onclick="switchTab('conceitos', this)"><i class="fa-solid fa-book-open"></i> Conceitos Básicos</li>
+            <li class="nav-item" onclick="switchTab('cadastros', this)"><i class="fa-solid fa-folder-tree"></i> Cadastros & Params</li>
+            <li class="nav-item" onclick="switchTab('processos', this)"><i class="fa-solid fa-gears"></i> Processos WMS</li>
+            <li class="nav-item" onclick="switchTab('coletor', this)"><i class="fa-solid fa-mobile-screen-button"></i> Coletor Automatizado</li>
+            
+            <div class="menu-title">Tabelas e Cálculos</div>
+            <li class="nav-item" onclick="switchTab('params', this)"><i class="fa-solid fa-calculator"></i> Cálculos UC e CFOP</li>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="top-header">
+            <h1 id="page-title">Fluxo de Entrada</h1>
+            <div class="sys-status"><i class="fa-solid fa-circle-check"></i> DEEP Logística</div>
+        </div>
+
+        <!-- ABA 1: FLUXO DE ENTRADA -->
+        <div id="inbound" class="section-content active">
+            <div class="info-box"><i class="fa-solid fa-circle-info"></i> Processo passo a passo de recebimento de carga e armazenagem.</div>
+            
+            <div class="card">
+                <div class="card-header"><i class="fa-solid fa-file-invoice" style="color: var(--primary-color);"></i><h3>Preparação e Documentação</h3></div>
+                
+                <div class="step-container">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <span class="badge badge-system">Sistema</span>
+                        <p>Consome Xml na pasta do depositante.</p>
+                    </div>
+                </div>
+                
+                <div class="step-container">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <span class="badge badge-system">Sistema</span>
+                        <p>Em <strong>Documento Entrada</strong> > <strong>Manutenção de Itens</strong> > <strong>Dados Lote [03]</strong> > <span class="highlight">Alterar</span>.</p>
+                        <p>Informar tipo logístico 03. Informar o lote de fabricação no campo "dado logístico". Salvar e Cancelar (para sair da tela).</p>
+                    </div>
+                </div>
+                
+                <div class="step-container">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <span class="badge badge-system">Sistema</span>
+                        <p>Ir no cadastro do produto e <strong>Consultar UC</strong> para verificar se existe parâmetro de M3 e Pallet.</p>
+                        <ul style="margin-left: 20px; font-size: 13px; color: #4b5563; margin-top: 5px;">
+                            <li><strong>Palete:</strong> Fator tipo UC = valor da divisão entre quantidade do item na nota pela quantidade total da nota. (Ex: Nota tem 80,37 qtde item / 30 qtde nota = 2,679).</li>
+                            <li><strong>Metro Cúbico (M3):</strong> Fator tipo UC = "1". Peso líquido e bruto devem ser conferidos pegando o peso da nota e dividindo pela quantidade do item. (Ex: 40185 / 80,37 = 500).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-number" style="background-color: var(--secondary-color);">4</div>
+                    <div class="step-content">
+                        <span class="badge badge-system">Sistema</span>
+                        <p>Gerar UA - Menu avançado > <span class="highlight">Gerar UA's</span>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="border-top-color: var(--warning-color);">
+                <div class="card-header"><i class="fa-solid fa-barcode" style="color: var(--warning-color);"></i><h3>Conferência e Armazenagem</h3></div>
+                
+                <div class="step-container">
+                    <div class="step-number" style="background-color: var(--warning-color);">5</div>
+                    <div class="step-content">
+                        <span class="badge badge-collector">Coletor</span>
+                        <p><strong>Recebimento</strong> > <strong>Conferência</strong> > <strong>Conferência Detalhada</strong>.</p>
+                        <p>Informar depositante (Guararapes santa Cecília 15) > Informar romaneio (100) > Informar UA (usei UA 82) > Código produto > Informar lote fabricação (telnet) > Informa quantidade > ESC.</p>
+                        <p>Aguardar processar (aparece mensagem <em>"todas conferencias de produtos do romaneio/ordem foram efetivadas"</em>).</p>
+                    </div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-number" style="background-color: var(--secondary-color);">6</div>
+                    <div class="step-content">
+                        <span class="badge badge-system">Sistema</span>
+                        <p>Status do documento de entrada vai mudar de "pendente" para <span class="highlight">Confirmado</span>.</p>
+                    </div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-number" style="background-color: var(--secondary-color);">7</div>
+                    <div class="step-content">
+                        <span class="badge badge-system">Sistema</span>
+                        <p>Status do romaneio vai mudar de "carga/descarga" para <span class="highlight">Efetivado</span>. A Carga já consta como saldo na doca da Deep.</p>
+                    </div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-number" style="background-color: var(--warning-color);">8</div>
+                    <div class="step-content">
+                        <span class="badge badge-collector">Coletor</span>
+                        <p><strong>Transferir de Doca para Endereço:</strong> Menu coletor Movimentação > <strong>UA 2.0</strong>.</p>
+                        <p>Informar depositante (Guararapes santa Cecília 15) > ORG (origem) informar Doca > Informar UA (82) > DES (destino) informar endereço destino (END.A).</p>
+                        <p>Aparece confirmação <em>"movimentação realizada com sucesso"</em>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="border-top-color: var(--success-color);">
+                <div class="card-header"><i class="fa-solid fa-file-signature" style="color: var(--success-color);"></i><h3>Geração de Documento Oficial e Validação</h3></div>
+                
+                <div class="step-container">
+                    <div class="step-number" style="background-color: var(--success-color);">9</div>
+                    <div class="step-content">
+                        <span class="badge badge-system">Sistema</span>
+                        <p>No romaneio ir em <span class="highlight">Gerar documento fiscal</span>, selecionar o documento, clicar e arrastar até <strong>"gerar oficial"</strong>. Vai ser gerado um <strong>DOE</strong> que terá relação com o DE já existente.</p>
+                        <p>Será exibido na tela o DOE gerado (no teste ganhou o número 435). A tela central de documentos transforma um DE em DOE manualmente, caso seja necessário.</p>
+                    </div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-number" style="background-color: var(--secondary-color);">10</div>
+                    <div class="step-content">
+                        <span class="badge badge-system">Sistema</span>
+                        <p>Cntr que virá retirar a carga na Deep deve possuir cadastro no zion, no teste vou usar a sigla <strong>MSCU9874535</strong>.</p>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <span style="background-color: #d1fae5; color: #065f46; font-weight: bold; padding: 10px 20px; border-radius: 8px;">FLUXO DE ENTRADA ACABA AQUI</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 2: UNITIZAÇÃO E SAÍDA -->
+        <div id="outbound" class="section-content">
+            <div class="info-box"><i class="fa-solid fa-anchor"></i> O processo de unitização e saída de container.</div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="card">
+                    <div class="card-header"><i class="fa-solid fa-box-open" style="color: var(--primary-color);"></i><h3>Processo de Unitização</h3></div>
+                    
+                    <div class="step-container">
+                        <div class="step-number">11</div>
+                        <div class="step-content">
+                            <span class="badge badge-system">Sistema</span>
+                            <p>Criar novo romaneio para usar na operação do cntr. No campo end doca colocar "pátio" - no campo espécie carga colocar "cntr vazio" - no campo identificador container informar o cntr a usar MSCU9874535 - salvar.</p>
+                            <p>Clicar em <span class="highlight">Efetivado</span> na barra lateral direita de status. (Exemplo: romaneio "102").</p>
+                        </div>
+                    </div>
+
+                    <div class="step-container">
+                        <div class="step-number">12</div>
+                        <div class="step-content">
+                            <span class="badge badge-system">Sistema</span>
+                            <p>No romaneio "102" clicar em <strong>Vistoria de romaneio</strong> na lateral direita - clicar em novo - seleciona unitização - preenche campo data previsão - gravar - no status a direita clicar em <span class="highlight">Autorizada</span>.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-container">
+                        <div class="step-number">13</div>
+                        <div class="step-content">
+                            <span class="badge badge-system">Sistema</span>
+                            <p>No romaneio "102" clicar em <strong>Reserva manual sem pedido</strong> na lateral direita - clicar em novo (anotar DS e ordem gerados).</p>
+                            <p>Na janela a esquerda inferior informar nº documento 180302 e filtrar - selecionar a carga na janela superior (onde aparece o endereço) - clicar em reservar - clicar em liberar para liberar as reservas.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-container">
+                        <div class="step-number" style="background-color: var(--warning-color);">14</div>
+                        <div class="step-content">
+                            <span class="badge badge-collector">Coletor</span>
+                            <p>Menu expedição > Menu <strong>Picking</strong> > Informar depositante > Informar romaneio de unitização "102".</p>
+                            <p>Conferir informação que aparece de endereço e UA - enter - digitar informação ou ler para conferir o físico (END.A e UA 82) - ENTER - CONFIRMA - ENTER - DES (Destino) informar "pátio" - ENTER - confirmar.</p>
+                            <p>Vai exibir operação realizada com sucesso. (Carga está no pátio).</p>
+                        </div>
+                    </div>
+
+                    <div class="step-container">
+                        <div class="step-number" style="background-color: var(--warning-color);">15</div>
+                        <div class="step-content">
+                            <span class="badge badge-collector">Coletor</span>
+                            <p>Menu expedição > Conferencia > <strong>Conferencia detalhada</strong> > Informar depositante > Informar romaneio de unitização "102".</p>
+                            <p>Aparece mensagem "romaneio efetivado completamente" - status do romaneio muda para <span class="highlight">Unitizado</span>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="border-top-color: var(--danger-color);">
+                    <div class="card-header"><i class="fa-solid fa-truck-fast" style="color: var(--danger-color);"></i><h3>Processo de Saída</h3></div>
+                    
+                    <div class="step-container">
+                        <div class="step-number" style="background-color: var(--danger-color);">16</div>
+                        <div class="step-content">
+                            <span class="badge badge-system">Sistema</span>
+                            <p>Abrir um novo romaneio "103" para registrar a saída do cntr cheio. Campo tipo "saída" - campo End.Doca "Patio" - campo espécie carga "cntr stacking" - campo identificador container "MSCU9874535" - salvar.</p>
+                            <p>Na aba "movimento portaria (rápido)" informar a placa do veículo e cpf do motorista que está entrando para pegar o cntr cheio - salvar. Status muda para <span class="highlight">Entrada liberada</span> e depois <span class="highlight">Entrada concluída</span>. Status do romaneio muda para "carga/descarga".</p>
+                        </div>
+                    </div>
+
+                    <div class="step-container">
+                        <div class="step-number" style="background-color: var(--warning-color);">17</div>
+                        <div class="step-content">
+                            <span class="badge badge-collector">Coletor</span>
+                            <p>Menu expedição > Menu <strong>Container</strong> > Em LER informar o cntr (MSCU9874535) - ENTER.</p>
+                            <p>Vai aparecer a mensagem "container expedido com sucesso" e o status do romaneio "103" vai mudar para <span class="highlight">Expedido</span>.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-container">
+                        <div class="step-number" style="background-color: var(--danger-color);">18</div>
+                        <div class="step-content">
+                            <span class="badge badge-system">Sistema</span>
+                            <p>No romaneio de unitização "102", clicar em status "expedido". O status do romaneio vai mudar de "unitizado" para <span class="highlight">Expedido</span>, liberando o cntr no sistema.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-container">
+                        <div class="step-number" style="background-color: var(--success-color);">19</div>
+                        <div class="step-content">
+                            <span class="badge badge-system">Sistema</span>
+                            <p>Pesquisar <strong>Documento de saída</strong> que tem vinculo com o romaneio "103". Na aba documentos do romaneio, na lateral direita clicar em <span class="highlight">Gerar documento fiscal</span>.</p>
+                            <p>Nessa tela se seguir vai emitir a nota fiscal e DS vai se tornar um <strong>DOS</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 3: CONCEITOS E TELAS -->
+        <div id="conceitos" class="section-content">
+            <div class="card">
+                <div class="card-header"><i class="fa-solid fa-book-open"></i><h3>Conceitos de Negócio e Telas</h3></div>
+                
+                <button class="accordion">Conceitos Básicos (Estabelecimento, Depositante, UA e UC) <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <h4>Conceitos Fundamentais</h4>
+                        <ul>
+                            <li><strong>Estabelecimento:</strong> Instituição onde são armazenados os produtos ou prestadora de serviços logísticos.</li>
+                            <li><strong>Depositante:</strong> Empresa proprietária dos produtos armazenados.</li>
+                            <li><strong>Endereços para Armazenagem:</strong> Locais reservados. O Zion WMS trabalha com sugestão de endereços baseada em prioridades e regras.</li>
+                            <li><strong>UA (Unidade de Armazenamento):</strong> Compartimento utilizado (Pallets 100x120, Containeres, Racks). Cada UA possui um código único.</li>
+                            <li><strong>UC (Unidade de Acondicionamento):</strong> Formas de embalagens (caixas, pacotes, fardos, unitários).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="accordion">Acesso ao Sistema e Telas <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <h4>Acesso e Sincronismo</h4>
+                        <p>No <strong>Zion Comnect</strong>, informe usuário e senha. Valide a Data e Hora da sua máquina com o Servidor (o sistema avisará se houver divergência e solicitará sincronização para garantir consistência).</p>
+                        <h4>Estrutura dos Formulários</h4>
+                        <ul>
+                            <li><strong>Guias:</strong> Pastas/abas tipo fichário.</li>
+                            <li><strong>Visualização:</strong> Exibe os itens cadastrados em lista.</li>
+                            <li><strong>Edição:</strong> Área para digitar inclusões/alterações.</li>
+                            <li><strong>Pesquisa:</strong> Área para efetuar consultas via filtros. Pressione <code>F12</code> para alterar parâmetros não fixados no cabeçalho das janelas.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="accordion">Seleção de Endereços e Botões de Manutenção <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <h4>Seleção de Parâmetros de Endereço</h4>
+                        <p>Utilizada em Alocações e Inventário. Define formato do prédio (C para caractere, 0 para numérico, A para alfanumérico). Ex: Início A/1, Fim Z/9. Pode-se filtrar apenas pares ou ímpares e ordenar decrescente.</p>
+                        <h4>Botões Padrões do Sistema</h4>
+                        <ul>
+                            <li><strong>Novo / Alterar / Excluir:</strong> Ações básicas de registro (Campos chave não podem ser alterados, devem ser excluídos e recadastrados).</li>
+                            <li><strong>Pesquisar:</strong> Sem filtros, traz todos os registros.</li>
+                            <li><strong>Testar / Duplicar / Detalhes:</strong> Valida configurações / Copia registro / Mostra logs de erro de interface.</li>
+                            <li><strong>Gravar / Cancelar / Fechar / Limpar:</strong> Finaliza ações de banco e interface.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 4: CADASTROS E PARÂMETROS -->
+        <div id="cadastros" class="section-content">
+            <div class="card">
+                <div class="card-header"><i class="fa-solid fa-folder-tree"></i><h3>Cadastros Base e Parâmetros</h3></div>
+                
+                <button class="accordion">Cadastro de Produtos <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <h4>Guia Produtos</h4>
+                        <p>Localizado em Cadastros > Produtos. Exige vincular a um Depositante.</p>
+                        <ul>
+                            <li><strong>Produto:</strong> Código, Descrição, Tipo, Grupo.</li>
+                            <li><strong>Empresa/Estabel.:</strong> Endereço Pivô (preferencial para armazenagem).</li>
+                            <li><strong>Informações Estoque:</strong> Estoque Mínimo, Máximo, Segurança, Ponto de Reposição.</li>
+                            <li><strong>Número Série:</strong> Histórico de Lote de Entrada/Saída para itens serializados.</li>
+                            <li><strong>Tipo UA:</strong> Fator Tipo UC, Qtde Máxima na UA, Máximo Empilhamento e Lastro.</li>
+                            <li><strong>Produto Picking:</strong> Informa a Regra de Endereço, Ponto de Reposição e Capacidade.</li>
+                            <li><strong>Regras de Logística:</strong> Tipo de Baixa (Data de Entrada, Vencimento, Lote, etc - base para FIFO/FEFO) e Regra de Movimentação.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="accordion">Documento de Entrada (DE) e Saída (DS) <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <h4>Documento de Entrada (DE)</h4>
+                        <p>Registra a entrada e gera saldo físico via "Lotes de Entrada". A "sequência do lote" é o saldo real vinculado à UA e Endereço. Cabeçalho: Empresa, Tipo Dcto, Série, Natureza Operação.</p>
+                        <h4>Documento de Saída (DS)</h4>
+                        <p>Registra a saída gerando baixa física através dos "Lotes de Saída". A baixa efetiva pode ser Manual (aba Inclusão Manual) ou Sistêmica via Romaneio e Picking.</p>
+                    </div>
+                </div>
+
+                <button class="accordion">Parâmetros: Depositante, Estabelecimento e Sistema <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <h4>Depositante</h4>
+                        <p>Controla se o coletor exigirá Peso, Lote, Validade e RCQ. Permite "Expedir Sequência Inteira", "Validar Informações Lastro" e "Validar Oficial de Entrada" (Regime Fiscal).</p>
+                        <h4>Estabelecimento</h4>
+                        <p>Define Tipo de UA Padrão, Regra de Armazenagem e Naturezas de Operação Padrão (CFOP).</p>
+                        <h4>Sistema</h4>
+                        <p>Define Paths de relatórios RPT. Valida rigidamente CNPJ/CPF e CEP das empresas. Controla tempo limite do relógio em relação ao servidor.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 5: PROCESSOS WMS -->
+        <div id="processos" class="section-content">
+            <div class="card">
+                <div class="card-header"><i class="fa-solid fa-gears"></i><h3>Operação WMS (Recebimento, Estoque e Expedição)</h3></div>
+                
+                <button class="accordion">Conferências, Ajustes e Efetivações <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <h4>Ajustar Doc. Divergente & Efetivar</h4>
+                        <p>A tela "Comparar Contagens" avalia o digitado vs documento. Se houver divergência permitida pelo depositante, o botão "Ajustar Doc. Divergente" altera o documento para bater com a contagem. A <strong>Efetivação Divergente</strong> gera um RDA e dá entrada no saldo.</p>
+                    </div>
+                </div>
+
+                <button class="accordion">Armazenagem, Sugestão e Endereços <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <h4>Regras de Movimentação</h4>
+                        <p>São 12 regras principais (ex: <em>Produto/Lote Logístico/Vazio</em>) que definem se o sistema permite misturar produtos ou lotes no mesmo endereço.</p>
+                        <h4>Capacidade do Endereço</h4>
+                        <p>Fórmula: <code>OcupDispEnd = CapTipoUA - (%OcupEnd * CapTipoUA)</code>. O sistema bloqueia UAs caso a capacidade total percentual já tenha sido atingida.</p>
+                    </div>
+                </div>
+
+                <button class="accordion">Estoque: RDA, RCQ e Curva ABC <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <h4>RDA (Divergências e Avarias)</h4>
+                        <p>Registra sobras, faltas ou avarias. <strong>RDA a Menor:</strong> Dá entrada do faltante numa classe de divergência. <strong>RDA a Maior:</strong> Cria um lote novo com a sobra.</p>
+                        <h4>RCQ (Controle de Qualidade)</h4>
+                        <p>Registra alterações de dados logísticos. Pode ser gerado na Efetivação Divergente ou na Movimentação Geral.</p>
+                        <h4>Curva ABC e Ressuprimento</h4>
+                        <p>Mantém a área de picking abastecida. Se o saldo de um "Endereço de Picking" cair abaixo do "Ponto de Reposição", o sistema gera a tarefa <strong>[170] - Reposição de Picking</strong> automaticamente.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 6: COLETOR AUTOMATIZADO -->
+        <div id="coletor" class="section-content">
+            <div class="info-box"><i class="fa-solid fa-mobile-button"></i> Fluxos operacionais utilizando o equipamento coletor (Zion Coletor).</div>
+
+            <div class="card">
+                <div class="card-header"><i class="fa-solid fa-walkie-talkie"></i><h3>1. Convocação Ativa (Pró-Ativo)</h3></div>
+                <button class="accordion">Parametrização e Fluxo do Usuário <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <p>O Zion Monitor/Schedule aloca tarefas ao usuário baseando-se em prioridade e tempo. Requer ativar a flag "Utilizar Convocação Ativa" nos produtos.</p>
+                        <ul>
+                            <li><strong>Gerenciador de Coletor:</strong> Tipo "Pendência". Informar Tempo S/ Resp e Tempo Reenvio.</li>
+                            <li><strong>Usuários de Coletor:</strong> Selecionar o Tipo de Recurso e priorizar tarefas (Ex: Picking [135] = Prio 1, Conf [111] = Prio 2).</li>
+                        </ul>
+                        <h4>Acesso no Coletor</h4>
+                        <p>Opção <strong>6- PRO-ATIVO</strong>. A tela fica em "AGUARDANDO...". Quando a tarefa chega (ex: 160-MOVIMENTACAO UA), o operador tecla S/N para aceitar.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="border-top-color: var(--warning-color);">
+                <div class="card-header"><i class="fa-solid fa-clipboard-check" style="color: var(--warning-color);"></i><h3>2. Conferência Detalhada e Armaz. Parcial</h3></div>
+                <button class="accordion">Telas de Conferência Detalhada <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <p><strong>Parametrização:</strong> Tarefa 111-1 | TCP: [33] Efetivação por UA | Espécie: "10 - CONF. PRD. UA DL QTDE".</p>
+                        <ul>
+                            <li><strong>Telas 01 a 03:</strong> Recebimento > Conferencia > Conferencia Detalhada.</li>
+                            <li><strong>Telas 04 a 07:</strong> Informe Depositante, Romaneio, Doca, Lacre, e leia o Produto.</li>
+                            <li><strong>Telas 08 a 11:</strong> Informe UA, Dados Logísticos (Lote, Validade), Pesos e a Quantidade conferida.</li>
+                            <li><strong>Telas 12 a 14:</strong> Mensagem de sucesso, confirmação de Efetivação da UA e conclusão do romaneio.</li>
+                        </ul>
+                    </div>
+                </div>
+                <button class="accordion">Telas de Armazenagem Parcial <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <ul>
+                            <li><strong>Telas 01 a 03:</strong> Recebimento > Armazenagem Parcial > Informe a UA conferida na doca.</li>
+                            <li><strong>Tela 04/05:</strong> Leia o código do produto. (Enter vazio armazena a UA toda).</li>
+                            <li><strong>Tela 06/07:</strong> Exibe Sugestão de Endereço (ARM, REP ou MOV). Leia o endereço e a UA de destino.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 7: CÁLCULOS E UC -->
+        <div id="params" class="section-content">
+            <div class="card">
+                <div class="card-header"><i class="fa-solid fa-calculator" style="color: var(--primary-color);"></i><h3>Cálculos de Conversão (UC) e CFOPs</h3></div>
+                <table class="data-table" style="margin-top: 10px;">
+                    <thead><tr><th>Tipo de UC</th><th>Campo / Fator</th><th>Regra / Fórmula</th><th>Exemplo</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Palete</strong></td><td>Fator tipo UC</td><td><kbd>(Qtd. item) ÷ (Qtd. total)</kbd></td><td>80,37 ÷ 30 = <strong>2,679</strong></td></tr>
+                        <tr><td rowspan="3"><strong>M3</strong></td><td>Fator tipo UC</td><td>Sempre <strong>"1"</strong></td><td>1</td></tr>
+                        <tr><td>Peso Bruto</td><td><kbd>(PB Total) ÷ (Qtd. Item)</kbd></td><td>40185 ÷ 80,37 = <strong>500</strong></td></tr>
+                        <tr><td>Peso Líquido</td><td><kbd>(PL Total) ÷ (Qtd. Item)</kbd></td><td><strong>500</strong></td></tr>
+                    </tbody>
+                </table>
+                <br>
+                <h4 style="margin-bottom: 10px; color: var(--danger-color);"><i class="fa-solid fa-tags"></i> Tabela de CFOPs Operacionais</h4>
+                <ul style="list-style-type: none; font-size: 14px; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px;">
+                    <li style="padding: 10px 0; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+                        <span><strong>Ambev Vidros</strong></span><span class="badge badge-system">CFOP 5923</span>
+                    </li>
+                    <li style="padding: 10px 0; display: flex; justify-content: space-between;">
+                        <span><strong>Novas Ambevs</strong></span><span class="badge badge-system">CFOP 5934</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="main-footer">
+            DEEP logistica dedicada e portuária - todos os direitos reservados.
+        </footer>
+
+    </main>
+
+    <script>
+        // Controle de Abas
+        function switchTab(tabId, element) {
+            const contents = document.querySelectorAll('.section-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+            
+            const titleMap = {
+                'inbound': {t: 'Fluxo de Entrada'},
+                'outbound': {t: 'Unitização e Saída'},
+                'conceitos': {t: 'Conceitos e Telas'},
+                'cadastros': {t: 'Cadastros e Parâmetros'},
+                'processos': {t: 'Processos WMS'},
+                'coletor': {t: 'Coletor Automatizado'},
+                'params': {t: 'Cálculos de UC e Alertas'}
+            };
+            
+            if(titleMap[tabId]) {
+                const titleEl = document.getElementById('page-title');
+                if (titleEl) titleEl.innerText = titleMap[tabId].t;
+            }
+        }
+
+        // Lógica dos Accordions (Sanfonas)
+        var acc = document.getElementsByClassName("accordion");
+        for (var i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function() {
+                this.classList.toggle("active-acc");
+                let icon = this.querySelector('i');
+                if(this.classList.contains("active-acc")) {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+                var panel = this.nextElementSibling;
+                if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                } else {
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                } 
+            });
+        }
+    </script>
+</body>
+</html>
